@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>movsqt</name>
+	<name>movs-merger</name>
 	<comment></comment>
 	<projects>
+		<project>movs</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

@@ -1,30 +1,47 @@
-from __future__ import annotations
+from difflib import SequenceMatcher
+from shutil import move
+from sys import argv
+from sys import stderr
+from sys import stdout
+from typing import Iterator
+from typing import List
+from typing import Sequence
 
-import shutil
-import sys
-import typing
-
-import movs
-
-from .accumulator import accumulate
+from movs import read_txt
+from movs import write_csv
+from movs import write_kv
+from movs import write_txt
+from movs.model import Row
 
 
-class Merger:
-    def __init__(self, suffix: str='~', *, in_place: bool=True) -> None:
-        self.suffix = suffix
-        self.in_place = in_place
+def merge_rows(acc: Sequence[Row], new: Sequence[Row]) -> Iterator[Row]:
+    sequence_matcher = SequenceMatcher(None, acc, new, False)
+    for tag, _i1, _i2, j1, j2 in sequence_matcher.get_opcodes():
+        if tag in ('insert', 'replace'):
+            yield from new[j1:j2]
+    yield from acc
 
-    def merge(self, acc_fn: str, *mov_fns: str) -> None:
 
-        acc_csv = movs.read_txt(acc_fn)[1]
-        mov_kv_csvs = (movs.read_txt(mov_fn) for mov_fn in mov_fns)
-        csv = acc_csv
-        for kv, mov_csv in mov_kv_csvs:
-            csv = accumulate(csv, mov_csv)
+def merge_files(acc_fn: str, *mov_fns: str) -> None:
+    _, acc_csv = read_txt(acc_fn)
+    mov_kv_csvs = (read_txt(mov_fn) for mov_fn in mov_fns)
 
-        if self.in_place:
-            shutil.move(acc_fn, f'{acc_fn}{self.suffix}')
-            movs.write_txt(acc_fn, kv, csv)
-        else:
-            movs.write_kv(sys.stdout, kv)
-            movs.write_csv(sys.stdout, csv)
+    csv = acc_csv
+    for kv, mov_csv in mov_kv_csvs:
+        csv = list(merge_rows(csv, mov_csv))
+
+    move(acc_fn, f'{acc_fn}~')
+    write_txt(acc_fn, kv, csv)
+
+
+def main() -> None:
+    if not argv[1:]:
+        raise SystemExit(f'uso: {argv[0]} ACCUMULATOR [MOVIMENTI...]')
+
+    accumulator, *movimentis = argv[1:]
+    merge_files(accumulator, *movimentis)
+
+    print(f'overridden {accumulator}', file=stderr)
+    print(f'backupd at {accumulator}~', file=stderr)
+    for movimenti in movimentis:
+        print(f'and merged {movimenti}', file=stderr)

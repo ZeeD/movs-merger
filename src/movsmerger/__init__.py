@@ -2,14 +2,10 @@ from difflib import SequenceMatcher
 from shutil import move
 from sys import argv
 from sys import stderr
-from sys import stdout
 from typing import Iterator
-from typing import List
 from typing import Sequence
 
 from movs import read_txt
-from movs import write_csv
-from movs import write_kv
 from movs import write_txt
 from movs.model import Row
 
@@ -26,6 +22,7 @@ def merge_files(acc_fn: str, *mov_fns: str) -> None:
     _, acc_csv = read_txt(acc_fn)
     mov_kv_csvs = (read_txt(mov_fn) for mov_fn in mov_fns)
 
+    kv = None
     csv = acc_csv
     for kv, mov_csv in mov_kv_csvs:
         csv = list(merge_rows(csv, mov_csv))

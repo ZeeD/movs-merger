@@ -7,8 +7,11 @@ setup(name='movs-merger',
       author='Vito De Tullio',
       author_email='vito.detullio@gmail.com',
       py_modules=find_packages(),
+      install_requires=[
+          'movs'
+      ],
       package_data={
-          'movs': ['py.typed'],
+          'movsmerger': ['py.typed'],
       },
       entry_points={
           'console_scripts': [

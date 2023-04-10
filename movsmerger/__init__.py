@@ -1,9 +1,9 @@
+from collections.abc import Iterator
+from collections.abc import Sequence
 from difflib import SequenceMatcher
 from shutil import move
 from sys import argv
 from sys import stderr
-from typing import Iterator
-from typing import Sequence
 
 from movs import read_txt
 from movs import write_txt

@@ -20,8 +20,7 @@ def _merge_rows_helper(acc: list[Row], new: list[Row]) -> Iterator[Row]:
 
 
 def merge_rows(acc: list[Row], new: list[Row]) -> list[Row]:
-    return sorted(_merge_rows_helper(acc, new),
-                  key=lambda row: row.date, reverse=True)
+    return list(_merge_rows_helper(acc, new))
 
 
 def read(mov_fn: str) -> tuple[KV, list[Row]]:
@@ -29,12 +28,9 @@ def read(mov_fn: str) -> tuple[KV, list[Row]]:
 
 
 def merge_files(acc_fn: str, *mov_fns: str) -> None:
-    _, acc_csv = read_txt(acc_fn)
-    mov_kv_csvs = (read(mov_fn) for mov_fn in mov_fns)
-
-    kv = None
-    csv = acc_csv
-    for kv, mov_csv in mov_kv_csvs:
+    kv, csv = read_txt(acc_fn)
+    for mov_fn in mov_fns:
+        kv, mov_csv = read(mov_fn)
         csv = merge_rows(csv, mov_csv)
 
     move(acc_fn, f'{acc_fn}~')

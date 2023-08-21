@@ -1,5 +1,4 @@
 from collections.abc import Iterator
-from collections.abc import Sequence
 from difflib import SequenceMatcher
 from shutil import move
 from sys import argv
@@ -10,15 +9,19 @@ from movs import write_txt
 from movs.estrattoconto import read_estrattoconto
 from movs.model import KV
 from movs.model import Row
-from movs.model import Rows
 
 
-def merge_rows(acc: Sequence[Row], new: Sequence[Row]) -> Iterator[Row]:
+def _merge_rows_helper(acc: list[Row], new: list[Row]) -> Iterator[Row]:
     sequence_matcher = SequenceMatcher(None, acc, new, False)
     for tag, _i1, _i2, j1, j2 in sequence_matcher.get_opcodes():
         if tag in ('insert', 'replace'):
             yield from new[j1:j2]
     yield from acc
+
+
+def merge_rows(acc: list[Row], new: list[Row]) -> list[Row]:
+    return sorted(_merge_rows_helper(acc, new),
+                  key=lambda row: row.date, reverse=True)
 
 
 def read(mov_fn: str) -> tuple[KV, list[Row]]:
@@ -32,7 +35,7 @@ def merge_files(acc_fn: str, *mov_fns: str) -> None:
     kv = None
     csv = acc_csv
     for kv, mov_csv in mov_kv_csvs:
-        csv = list(merge_rows(csv, mov_csv))
+        csv = merge_rows(csv, mov_csv)
 
     move(acc_fn, f'{acc_fn}~')
     write_txt(acc_fn, kv, csv)

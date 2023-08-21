@@ -7,7 +7,10 @@ from sys import stderr
 
 from movs import read_txt
 from movs import write_txt
+from movs.estrattoconto import read_estrattoconto
+from movs.model import KV
 from movs.model import Row
+from movs.model import Rows
 
 
 def merge_rows(acc: Sequence[Row], new: Sequence[Row]) -> Iterator[Row]:
@@ -18,9 +21,13 @@ def merge_rows(acc: Sequence[Row], new: Sequence[Row]) -> Iterator[Row]:
     yield from acc
 
 
+def read(mov_fn: str) -> tuple[KV, list[Row]]:
+    return (read_estrattoconto if mov_fn.endswith('.pdf') else read_txt)(mov_fn)
+
+
 def merge_files(acc_fn: str, *mov_fns: str) -> None:
     _, acc_csv = read_txt(acc_fn)
-    mov_kv_csvs = (read_txt(mov_fn) for mov_fn in mov_fns)
+    mov_kv_csvs = (read(mov_fn) for mov_fn in mov_fns)
 
     kv = None
     csv = acc_csv

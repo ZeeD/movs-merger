@@ -8,6 +8,7 @@ from typing import Callable
 from movs import read_txt
 from movs import write_txt
 from movs.estrattoconto import read_estrattoconto
+from movs.scansioni import read_scansioni
 from movs.model import KV
 from movs.model import Row
 from movs.postepay import read_postepay
@@ -29,10 +30,12 @@ def read(mov_fn: str) -> tuple[KV, list[Row]]:
     reader: Callable[[str], tuple[KV, list[Row]]] | None = None
     if mov_fn.endswith('.txt'):
         reader = read_txt
-    elif mov_fn == 'ListaMovimenti.pdf':
+    elif mov_fn.endswith('ListaMovimenti.pdf'):
         reader = read_postepay
     elif mov_fn.endswith('.pdf'):
         reader = read_estrattoconto
+    elif mov_fn.endswith('.scan'):
+        reader = read_scansioni
     if reader is None:
         raise Exception(f'unknown {mov_fn=}')
 

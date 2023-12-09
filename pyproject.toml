@@ -20,8 +20,11 @@ devtools = [
 where = ['src']
 namespaces = false
 
+[tool.setuptools.package-data]
+movsmerger = ['py.typed']
+
 [project.scripts]
-movs-merger = 'movsmerger:main'
+movs-merger = 'movsmerger.movsmerger:main'
 
 [tool.mypy]
 mypy_path = 'src,tests'

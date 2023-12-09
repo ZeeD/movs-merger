@@ -4,7 +4,7 @@ from unittest import TestCase
 
 from movslib.model import Row
 
-from movsmerger import merge_rows
+from movsmerger.movsmerger import merge_rows
 
 
 def d(days: int = 0) -> date:

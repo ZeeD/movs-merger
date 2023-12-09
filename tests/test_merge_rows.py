@@ -2,7 +2,7 @@ from datetime import date
 from datetime import timedelta
 from unittest import TestCase
 
-from movs.model import Row
+from movslib.model import Row
 
 from movsmerger import merge_rows
 

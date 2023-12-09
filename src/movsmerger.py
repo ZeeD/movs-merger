@@ -9,13 +9,13 @@ from shutil import move
 from sys import argv
 from typing import Final
 
-from movs.estrattoconto import read_estrattoconto
-from movs.model import KV
-from movs.model import Row
-from movs.movs import read_txt
-from movs.movs import write_txt
-from movs.postepay import read_postepay
-from movs.scansioni import read_scansioni
+from movslib.estrattoconto import read_estrattoconto
+from movslib.model import KV
+from movslib.model import Row
+from movslib.movs import read_txt
+from movslib.movs import write_txt
+from movslib.postepay import read_postepay
+from movslib.scansioni import read_scansioni
 
 
 def _merge_rows_helper(acc: list[Row], new: list[Row]) -> Iterator[Row]:

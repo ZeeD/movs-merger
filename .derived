@@ -1,8 +1,8 @@
 /.git
+/.project
+/.settings
 /build
 
 *.egg-info
 **/__pycache__
 .*_cache
-/.project
-/.settings/

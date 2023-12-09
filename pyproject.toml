@@ -1,0 +1,59 @@
+[project]
+name = 'movs-merger'
+version = '0.0.0'
+requires-python = '>=3.12'
+dependencies = [
+    'movs',
+]
+
+[project.urls]
+Homepage = 'https://github.com/ZeeD/movs-merger'
+Repository = 'https://github.com/ZeeD/movs-merger.git'
+
+[project.optional-dependencies]
+devtools = [
+    'mypy',
+    'ruff',
+]
+
+[tool.setuptools.packages.find]
+where = ['src']
+namespaces = false
+
+[project.scripts]
+movs-merger = 'movsmerger:main'
+
+[tool.mypy]
+mypy_path = 'src,tests'
+strict = true
+warn_unused_configs = true
+
+[tool.ruff]
+extend-select = [
+    'W', 'E', 'C90', 'I', 'N', 'D', 'UP', 'YTT', 'ANN', 'ASYNC', 'S', 'BLE',
+    'FBT', 'B', 'A', 'COM', 'C4', 'DTZ', 'T10', 'DJ', 'EM', 'EXE', 'FA', 'ISC',
+    'ICN', 'G', 'INP', 'PIE', 'T20', 'PYI', 'PT', 'Q', 'RSE', 'RET', 'SLF',
+    'SLOT', 'SIM', 'TID', 'TCH', 'INT', 'ARG', 'PTH', 'TD', 'FIX', 'ERA', 'PD',
+    'PGH', 'PL', 'TRY', 'FLY', 'NPY', 'AIR', 'PERF', 'RUF',
+]
+ignore = [
+    'D211', 'D212', 'ANN101', 'ANN102', 'D100', 'D103', 'D101', 'D102', 'S310',
+    'D104', 'ERA001', 'D300', 'D106',
+    'COM812', 'COM819', 'D206', 'E501', 'ISC001', 'Q000', 'Q001', 'Q002', 'Q003', 'W191',
+    'D105', 'D107', 'PT009', 'S101', 'PT027',
+]
+fix = true
+line-length = 80
+src = ['src', 'tests']
+
+[tool.ruff.isort]
+force-single-line = true
+
+[tool.ruff.flake8-quotes]
+inline-quotes = 'single'
+
+[tool.ruff.format]
+quote-style = 'single'
+
+[tool.ruff.flake8-annotations]
+allow-star-arg-any = true

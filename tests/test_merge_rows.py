@@ -4,7 +4,7 @@ from unittest import TestCase
 
 from movs.model import Row
 
-from . import merge_rows
+from movsmerger import merge_rows
 
 
 def d(days: int = 0) -> date:
@@ -34,33 +34,17 @@ class MergeRowsTest(TestCase):
         self.assertEqual([ROW1, ROW0], merge_rows([ROW0], [ROW1]))
 
     def test_old_data_overlap(self) -> None:
-        expected = [ROW4,
-                    ROW3,
-                    ROW2,
-                    ROW1,
-                    ROW0]
+        expected = [ROW4, ROW3, ROW2, ROW1, ROW0]
 
-        acc = [ROW4,
-               ROW3,
-               ROW0]
-        new = [ROW3,
-               ROW2,
-               ROW1,
-               ROW0]
+        acc = [ROW4, ROW3, ROW0]
+        new = [ROW3, ROW2, ROW1, ROW0]
 
         self.assertEqual(expected, merge_rows(acc, new))
 
     def test_old_data(self) -> None:
-        expected = [ROW4,
-                    ROW3,
-                    ROW2,
-                    ROW1,
-                    ROW0]
+        expected = [ROW4, ROW3, ROW2, ROW1, ROW0]
 
-        acc = [ROW4,
-               ROW3,
-               ROW0]
-        new = [ROW2,
-               ROW1]
+        acc = [ROW4, ROW3, ROW0]
+        new = [ROW2, ROW1]
 
         self.assertEqual(expected, merge_rows(acc, new))

@@ -3,7 +3,7 @@
 	<name>movs-merger</name>
 	<comment></comment>
 	<projects>
-		<project>movs</project>
+		<project>movslib</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

@@ -20,10 +20,25 @@ from movslib.scansioni import read_scansioni
 
 def _merge_rows_helper(acc: list[Row], new: list[Row]) -> Iterator[Row]:
     sequence_matcher = SequenceMatcher(None, acc, new, autojunk=False)
-    for tag, _i1, _i2, j1, j2 in sequence_matcher.get_opcodes():
-        if tag in ('insert', 'replace'):
+    for tag, i1, i2, j1, j2 in sequence_matcher.get_opcodes():
+        if tag == 'insert':
             yield from new[j1:j2]
-    yield from acc
+        elif tag in {'equal', 'delete'}:
+            yield from acc[i1:i2]
+        elif tag == 'replace':  # take from both
+            i = i1
+            j = j1
+            while i < i2 and j < j2:
+                a = acc[i]
+                n = new[j]
+                if a.date > n.date:
+                    yield a
+                    i += 1
+                else:
+                    yield n
+                    j += 1
+            yield from new[j:j2]
+            yield from acc[i:i2]
 
 
 def merge_rows(acc: list[Row], new: list[Row]) -> list[Row]:

@@ -10,6 +10,7 @@ from sys import argv
 from typing import Final
 
 from movslib.estrattoconto import read_estrattoconto
+from movslib.libretto import read_libretto
 from movslib.model import KV
 from movslib.model import Row
 from movslib.movs import read_txt
@@ -52,6 +53,7 @@ RULES: Final[dict[str, C]] = {
     'ListaMovimenti.pdf': read_postepay,
     '.pdf': read_estrattoconto,
     '.scan': read_scansioni,
+    '.xlsx': read_libretto
 }
 
 

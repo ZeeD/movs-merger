@@ -4,11 +4,12 @@ requires = [ "pdm-backend" ]
 
 [project]
 name = "zeed-movs-merger"
-version = "0.0.0"
-requires-python = "==3.12.*"
+version = "0.0.1"
+requires-python = ">=3.12,<3.14"
 classifiers = [
     "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
 ]
 dependencies = [
     "zeed-movslib",

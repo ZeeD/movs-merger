@@ -16,7 +16,6 @@ dependencies = [
 ]
 urls.Homepage = "https://github.com/ZeeD/movs-merger"
 urls.Repository = "https://github.com/ZeeD/movs-merger.git"
-
 scripts.movs-merger = "movsmerger.movsmerger:main"
 
 [tool.pdm]
@@ -44,6 +43,7 @@ tests = { composite = [
     "coverage report",
     "coverage erase",
 ] }
+start = { call = "movsmerger.movsmerger:main" }
 
 [tool.ruff]
 line-length = 80

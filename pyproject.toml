@@ -12,7 +12,7 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
 ]
 dependencies = [
-    "zeed-movslib",
+    "zeed-movslib>=0.0.3",
 ]
 urls.Homepage = "https://github.com/ZeeD/movs-merger"
 urls.Repository = "https://github.com/ZeeD/movs-merger.git"

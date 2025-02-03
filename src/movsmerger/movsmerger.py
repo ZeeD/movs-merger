@@ -53,7 +53,7 @@ RULES: Final[dict[str, C]] = {
     'ListaMovimenti.pdf': read_postepay,
     '.pdf': read_estrattoconto,
     '.scan': read_scansioni,
-    '.xlsx': read_libretto
+    '.xlsx': read_libretto,
 }
 
 

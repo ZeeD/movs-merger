@@ -3,7 +3,8 @@ from logging import INFO
 from logging import basicConfig
 from logging import getLogger
 from pathlib import Path
-from shutil import move
+from shlex import join
+from shutil import copy
 from sys import argv
 from typing import TYPE_CHECKING
 
@@ -54,33 +55,56 @@ def merge_files(acc_fn: str, *mov_fns: str) -> 'tuple[KV, list[Row]]':
     return kv, csv
 
 
+def copy_to_txt(bin_fn: str) -> str:
+    txt_fn = str(Path(bin_fn).with_suffix('.txt'))
+    kv_orig, csv_orig = merge_files(bin_fn)
+    write_txt(txt_fn, kv_orig, csv_orig)
+    return txt_fn
+
+
 def _main_txt(accumulator: str, movimentis: list[str]) -> None:
+    pqtdiff3_suggestion = ['pqtdiff3']
+
+    backup_accumulator = f'{accumulator}~'
+    copy(accumulator, backup_accumulator)
+    logger.info('backupd at %s', backup_accumulator)
+
+    pqtdiff3_suggestion.append(backup_accumulator)
+
     kv, csv = merge_files(accumulator, *movimentis)
-
-    move(accumulator, f'{accumulator}~')
-    logger.info('backupd at %s~', accumulator)
-
     write_txt(accumulator, kv, csv)
     logger.info('overridden %s', accumulator)
 
+    pqtdiff3_suggestion.append(accumulator)
+
     for movimenti in movimentis:
         logger.info('and merged %s', movimenti)
+        if not movimenti.endswith('.txt'):
+            text_movimenti = copy_to_txt(movimenti)
+            logger.info(' copied as %s', text_movimenti)
+
+            pqtdiff3_suggestion.append(text_movimenti)
+        else:
+            pqtdiff3_suggestion.append(movimenti)
+
+    logger.info('%s', join(pqtdiff3_suggestion))
 
 
 def _main_binary(binary_accumulator: str, movimentis: list[str]) -> None:
     logger.info('kept %s', binary_accumulator)
-    accumulator_orig = str(Path(binary_accumulator).with_suffix('.txt~'))
-    kv_orig, csv_orig = merge_files(binary_accumulator)
-    write_txt(accumulator_orig, kv_orig, csv_orig)
-    logger.info('backupd at %s', accumulator_orig)
+    text_accumulator = copy_to_txt(binary_accumulator)
+    logger.info('backupd at %s', text_accumulator)
 
-    kv, csv = merge_files(binary_accumulator, *movimentis)
     accumulator = str(Path(binary_accumulator).with_suffix('.txt'))
+    kv, csv = merge_files(binary_accumulator, *movimentis)
     write_txt(accumulator, kv, csv)
     logger.info('merged at %s', accumulator)
 
     for movimenti in movimentis:
         logger.info('and merged %s', movimenti)
+        if not movimenti.endswith('.txt'):
+            text_movimenti = copy_to_txt(movimenti)
+            logger.info(' copied as %s', text_movimenti)
 
 
 def main() -> None:
@@ -92,7 +116,7 @@ def main() -> None:
 
     accumulator, *movimentis = argv[1:]
 
-    if accumulator.endswith('txt'):
+    if accumulator.endswith('.txt'):
         _main_txt(accumulator, movimentis)
     else:
         _main_binary(accumulator, movimentis)

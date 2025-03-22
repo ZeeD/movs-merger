@@ -1,25 +1,25 @@
-from collections.abc import Callable
-from collections.abc import Iterator
 from difflib import SequenceMatcher
 from logging import INFO
 from logging import basicConfig
-from logging import error
-from logging import info
+from logging import getLogger
+from pathlib import Path
 from shutil import move
 from sys import argv
-from typing import Final
+from typing import TYPE_CHECKING
 
-from movslib.estrattoconto import read_estrattoconto
-from movslib.libretto import read_libretto
-from movslib.model import KV
-from movslib.model import Row
-from movslib.movs import read_txt
 from movslib.movs import write_txt
-from movslib.postepay import read_postepay
-from movslib.scansioni import read_scansioni
+from movslib.reader import read
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+
+    from movslib.model import KV
+    from movslib.model import Row
+
+logger = getLogger(__name__)
 
 
-def _merge_rows_helper(acc: list[Row], new: list[Row]) -> Iterator[Row]:
+def _merge_rows_helper(acc: 'list[Row]', new: 'list[Row]') -> 'Iterator[Row]':
     sequence_matcher = SequenceMatcher(None, acc, new, autojunk=False)
     for tag, i1, i2, j1, j2 in sequence_matcher.get_opcodes():
         if tag == 'insert':
@@ -42,61 +42,57 @@ def _merge_rows_helper(acc: list[Row], new: list[Row]) -> Iterator[Row]:
             yield from acc[i:i2]
 
 
-def merge_rows(acc: list[Row], new: list[Row]) -> list[Row]:
+def merge_rows(acc: 'list[Row]', new: 'list[Row]') -> 'list[Row]':
     return list(_merge_rows_helper(acc, new))
 
 
-C = Callable[[str], tuple[KV, list[Row]]]
-
-RULES: Final[dict[str, C]] = {
-    '.txt': read_txt,
-    'ListaMovimenti.pdf': read_postepay,
-    '.pdf': read_estrattoconto,
-    '.scan': read_scansioni,
-    '.xlsx': read_libretto,
-}
-
-
-class UnknownError(Exception):
-    def __init__(self, mov_fn: str) -> None:
-        super().__init__(f'unknown {mov_fn=}')
-
-
-def read(mov_fn: str) -> tuple[KV, list[Row]]:
-    for suffix, r in RULES.items():
-        reader = r
-        if mov_fn.endswith(suffix):
-            break
-    else:
-        raise UnknownError(mov_fn)
-
-    return reader(mov_fn)
-
-
-def merge_files(acc_fn: str, *mov_fns: str) -> None:
+def merge_files(acc_fn: str, *mov_fns: str) -> 'tuple[KV, list[Row]]':
     kv, csv = read(acc_fn)
     for mov_fn in mov_fns:
         kv, mov_csv = read(mov_fn)
         csv = merge_rows(csv, mov_csv)
+    return kv, csv
 
-    move(acc_fn, f'{acc_fn}~')
-    write_txt(acc_fn, kv, csv)
+
+def _main_txt(accumulator: str, movimentis: list[str]) -> None:
+    kv, csv = merge_files(accumulator, *movimentis)
+
+    move(accumulator, f'{accumulator}~')
+    logger.info('backupd at %s~', accumulator)
+
+    write_txt(accumulator, kv, csv)
+    logger.info('overridden %s', accumulator)
+
+    for movimenti in movimentis:
+        logger.info('and merged %s', movimenti)
+
+
+def _main_binary(binary_accumulator: str, movimentis: list[str]) -> None:
+    logger.info('kept %s', binary_accumulator)
+    accumulator_orig = str(Path(binary_accumulator).with_suffix('.txt~'))
+    kv_orig, csv_orig = merge_files(binary_accumulator)
+    write_txt(accumulator_orig, kv_orig, csv_orig)
+    logger.info('backupd at %s', accumulator_orig)
+
+    kv, csv = merge_files(binary_accumulator, *movimentis)
+    accumulator = str(Path(binary_accumulator).with_suffix('.txt'))
+    write_txt(accumulator, kv, csv)
+    logger.info('merged at %s', accumulator)
+
+    for movimenti in movimentis:
+        logger.info('and merged %s', movimenti)
 
 
 def main() -> None:
     basicConfig(level=INFO, format='%(message)s')
 
     if not argv[1:] or '-h' in argv[1:] or '--help' in argv[1:]:
-        error('uso: %s ACCUMULATOR [MOVIMENTI...]', argv[0])
-        error('\trules for [MOVIMENTI...]:')
-        for k, v in RULES.items():
-            error('\t*%-15s\t->\t%s', k, v.__name__)
+        logger.error('uso: %s ACCUMULATOR [MOVIMENTI...]', argv[0])
         raise SystemExit
 
     accumulator, *movimentis = argv[1:]
-    merge_files(accumulator, *movimentis)
 
-    info('overridden %s', accumulator)
-    info('backupd at %s~', accumulator)
-    for movimenti in movimentis:
-        info('and merged %s', movimenti)
+    if accumulator.endswith('txt'):
+        _main_txt(accumulator, movimentis)
+    else:
+        _main_binary(accumulator, movimentis)

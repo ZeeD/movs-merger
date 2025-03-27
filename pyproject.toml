@@ -18,17 +18,17 @@ urls.Homepage = "https://github.com/ZeeD/movs-merger"
 urls.Repository = "https://github.com/ZeeD/movs-merger.git"
 scripts.movs-merger = "movsmerger.movsmerger:main"
 
-[tool.pdm]
-distribution = true
-plugins = [ "pdm-bump" ]
-
-[tool.pdm.dev-dependencies]
+[dependency-groups]
 dev = [
     "coverage>=7.5.4",
     "mypy>=1.10.1",
-    "ruff>=0.5.0",
-    "pyproject-fmt>=2.3.0",
+    "pyproject-fmt>=2.3",
+    "ruff>=0.5",
 ]
+
+[tool.pdm]
+distribution = true
+plugins = [ "pdm-bump" ]
 
 [tool.pdm.build]
 excludes = [ "tests" ]

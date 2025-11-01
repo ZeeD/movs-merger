@@ -5,6 +5,7 @@ requires = [ "pdm-backend" ]
 [project]
 name = "zeed-movs-merger"
 version = "0.0.3"
+license = { file = "LICENSE" }
 requires-python = ">=3.12,<3.14"
 classifiers = [
     "Programming Language :: Python :: 3 :: Only",
@@ -37,12 +38,12 @@ excludes = [ "tests" ]
 _.env = { PYTHONPATH = "src:tests" }
 lint = { composite = [
     "pyproject-fmt pyproject.toml",
-    "ruff format .",
-    "ruff check --exit-zero .",
-    "mypy .",
-] }
-tests = { composite = [
-    "coverage run -m unittest discover --verbose --locals --failfast --catch --start-directory tests",
+    "ruff format {args:.}",
+    "ruff check {args:.}",
+    "mypy {args:.}",
+], keep_going = true }
+test = { composite = [
+    "coverage run -m unittest discover --verbose --locals --failfast --catch --start-directory tests {args}",
     "coverage report",
     "coverage erase",
 ] }
@@ -63,16 +64,26 @@ format.skip-magic-trailing-comma = true
 format.docstring-code-format = true
 lint.select = [ "ALL" ]
 lint.ignore = [
-    "ANN1",   # disabled by me
-    "COM812", # conflicts with formatter
-    "D1",     # disabled by me
-    "D203",   # incompatible with D211
-    "D213",   # incompatible with D212
-    "ISC001", # conflicts with formatter
-    "PT009",  # disabled by me
-    "PT027",  # disabled by me
-    "Q001",   # conflicts with formatter
-    "Q002",   # conflicts with formatter
+    "ANN1",
+    "COM812",
+    "D1",
+    "D203",
+    "D213",
+    "ISC001",
+    "PT009",
+    "PT027",
+    "Q001",
+    "Q002",
+    "TD002",
+    "TD003",
+]
+lint.extend-per-file-ignores."stubs/**/*.pyi" = [
+    "FBT001",
+    "FBT002",
+    "N802",
+    "N803",
+    "N815",
+    "PLR0913",
 ]
 lint.flake8-annotations.allow-star-arg-any = true
 lint.flake8-quotes.docstring-quotes = "single"

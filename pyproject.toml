@@ -47,7 +47,7 @@ test = { composite = [
     "coverage report",
     "coverage erase",
 ] }
-start = { call = "movsmerger.movsmerger:main" }
+start = "movs-merger"
 bump_and_publish = { composite = [
     "pdm bump patch --commit --tag",
     "pdm publish",
